@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Новая книга</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <link rel="stylesheet" href="css/createBook.css">
+    </head>
+    <body>
+        <h3 class="w-100 mt-5 d-flex justify-content-center">Новая книга</h3>
+        <div class="w-100 d-flex justify-content-center p-5">
+            <div class="card" style="width: 40rem;">
+                <div class="card-body">
+                    <p class="w-100 d-flex justify-content-center p-5"><a href="addCover">Добавить обложку для книги</a></p>
+                    <form method="POST" action="createBook">
+                      <div class="mb-3 row">
+                        <label for="bookName" class="col-sm-5 col-form-label">Название книги:</label>
+                        <div class="col-sm-7">
+                          <input type="text" class="form-control" id="bookName" name="name" value="">
+                        </div>
+                      </div>
+                      <div class="mb-3 row">
+                        <label for="published-year" class="col-sm-5 col-form-label">Год издания книги:</label>
+                        <div class="col-sm-7">
+                          <input type="text" class="form-control" id="published-year" name="publishedYear" value="">
+                        </div>
+                      </div>
+                      <div class="mb-3 row">
+                        <label for="quantity" class="col-sm-5 col-form-label">Количество экземпляров книги:</label>
+                        <div class="col-sm-7">
+                          <input type="text" class="form-control" id="quantity" name="quantity" value="">
+                        </div>
+                      </div>
+                      <div class="mb-3 row">
+                        <label for="authors_select" class="col-sm-5 col-form-label">Список авторов:</label>
+                        <div class="col-sm-7">
+                            <select name="authors" id="authors_select" class="form-select" multiple>
+                                <option value="1">Лев Толстой</option>
+                                <option value="2">Иван Тургенев</option>
+                            </select>
+                        </div>
+                      </div>
+                      <div class="mb-3 row">
+                        <label for="covers_select" class="col-sm-5 col-form-label justify-content-md-end">Обложки:</label>
+                        <div class="col-sm-7">
+                            <select name="coverId" id="covers_select" class="form-select">
+                                <option value="2" selected>Обложка для книги Отцы и дети</option>
+                                <option value="1" selected>Обложка для книги Война и мир</option>
+                            </select>
+                        </div>
+                      </div>
+
+                      <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                          <button type="button" class="btn btn-primary me-md-2" id="addBook">Добавить</button>
+                      </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="js/createBook.js"></script>    
+    </body>
+</html>

@@ -1,0 +1,18 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 05.05.2023, 12:40:47
+    Author     : pupil
+*/
+.head{
+    width: 100%;
+    text-align: center;
+    color: red;
+}
+.image-size{
+    whidth: 18rem;
+    height: 25rem;
+}
