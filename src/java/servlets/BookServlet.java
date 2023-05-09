@@ -5,6 +5,7 @@
  */
 package servlet;
 
+import convertors.ConvertToJson;
 import entity.Author;
 import entity.Book;
 import entity.Cover;
@@ -17,6 +18,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
@@ -39,7 +41,7 @@ import session.CoverFacade;
 @WebServlet(name = "BookServlet", urlPatterns = {
     "/createBook",
     "/createCover",
-    "/getListCovers",
+    "/listCovers",
     "/listBooks",
     
     
@@ -134,19 +136,12 @@ public class BookServlet extends HttpServlet {
                     out.println(job.build().toString());
                 }
                 break;
-            case "/getListCovers":
-                JsonArrayBuilder jab = Json.createArrayBuilder();
+            case "/listCovers":
                 List<Cover>listCovers = coverFacade.findAll();
-                for (int i = 0; i < listCovers.size(); i++) {
-                    cover = listCovers.get(i);
-                    job = Json.createObjectBuilder();
-                    job.add("id", cover.getId().toString());
-                    job.add("url",cover.getUrl());
-                    job.add("description",cover.getDescription());
-                    jab.add(job.build());
-                }
+                ConvertToJson convertToJson = new ConvertToJson();
                 try (PrintWriter out = response.getWriter()) {
-                    out.println(jab.build().toString());
+                    JsonArray jsonListCovers = convertToJson.getJsonArrayCovers(listCovers);
+                    out.println(jsonListCovers.toString());
                 }
                 break;
             case "/listBooks":

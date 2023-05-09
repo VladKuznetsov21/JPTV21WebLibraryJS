@@ -31,36 +31,40 @@ class BookModule{
                            <div class="mb-3 row">
                              <label for="authorId" class="col-sm-5 col-form-label">Список авторов:</label>
                              <div class="col-sm-7">
-                                 <select name="authors" id="authorId" class="form-select" multiple>
-                                     <option value="1">Лев Толстой</option>
-                                     <option value="2">Иван Тургенев</option>
+                                 <select name="authors" id="authorSelect" class="form-select" multiple>
+                                     
                                  </select>
                              </div>
                            </div>
                            <div class="mb-3 row">
                              <label for="coverId" class="col-sm-5 col-form-label justify-content-md-end">Обложки:</label>
                              <div class="col-sm-7">
-                                 <select name="coverId" id="coverId" class="form-select">
+                                 <select name="coverId" id="coverSelect" class="form-select">
+
                                  </select>
                              </div>
                            </div>
+
                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                                <button type="button" class="btn btn-primary me-md-2" id="addBook">Добавить</button>
                            </div>
+
                          </form>
                      </div>
                  </div>
              </div>
          `;
-         await fetch('getListCovers',{
+         await fetch('listCovers',{
              method:'GET',
              headers: {'Content-Type':'application/json'}
          })
              .then(listCovers=>listCovers.json())
              .then(listCovers => {
-                 let coverSelect = document.getElementById('coverId');
+                 let coverSelect = document.getElementById('coverSelect');
+                 coverSelect.innerHTML = '';
                  for(let i=0;i<listCovers.length;i++){
                      const cover = listCovers[i];
+                     console.log(JSON.stringify(cover));
                      let option = document.createElement("option");
                      option.text=cover.description;
                      option.value = cover.id;
@@ -70,14 +74,34 @@ class BookModule{
              .catch(error=>{
                  document.getElementById('info').innerHTML="Ошибка чтения списка обложек";
              });
+         await fetch('listAllAuthors',{
+             method:'GET',
+             headers: {'Content-Type':'application/json'}
+         })
+             .then(listAuthors=>listAuthors.json())
+             .then(listAuthors => {
+                 let authorSelect = document.getElementById('authorSelect');
+                 authorSelect.innerHTML = '';
+                 for(let i=0;i< listAuthors.length;i++){
+                     const author = listAuthors[i];
+                     let option = document.createElement("option");
+                     option.text=author.firstname + " " + author.lastname;
+                     option.value = author.id;
+                     authorSelect.appendChild(option);
+                 };
+             })
+             .catch(error=>{
+                 document.getElementById('info').innerHTML="Ошибка чтения списка авторов";
+             });
+
          const addBook = document.getElementById('addBook');
          addBook.addEventListener('click',e=>{
              const createBookObject = {
                  'bookName': document.getElementById('bookName').value,
                  'publishedYear': document.getElementById('publishedYear').value,
                  'quantity': document.getElementById('quantity').value,
-                 'authorId': document.getElementById('authorId').value,
-                 'coverId': document.getElementById('coverId').value
+                 'authorId': document.getElementById('authorSelect').value,
+                 'coverId': document.getElementById('coverSelect').value
              };
              bookModule.cretateNewBook(createBookObject);
          });
@@ -90,8 +114,36 @@ class BookModule{
        document.getElementById('content').innerHTML=
                `<h3 class="w-100 mt-5 d-flex justify-content-center">Список книг</h3>
                    <div id="box_listBooks" class="w-100 d-flex justify-content-center p-5">
+
                    </div>`;
        await fetch('listBooks',{
+           method: 'GET',
+           headers: {'Content-Type': 'application/json'}
+       })
+               .then(listBooks=>listBooks.json())//преобразовываем полученную строку в которой
+       //записан json-массив с книгами в js-массив
+               .then(listBooks => {
+                   let boxListBooks = document.getElementById('box_listBooks');//сюда будем вставлять карты с книгами
+                   for(let i=0;i<listBooks.length;i++){
+                       const book = listBooks[i];//получаем книгу из массива и вставляем из нее данные в html с помощью {{...}}
+                       let cart = `<div class="card " style="width: 18rem">
+                                       <a href="book?id=${book.id}">
+                                           <img src="insertFile/${book.cover.url}" class="card-img-top image-size" alt="...">
+                                       </a>
+                                   </div>`;
+
+                       boxListBooks.insertAdjacentHTML("beforeend", cart);
+                   }
+               })
+               .catch(error => "error: "+error);
+    }
+    async printListReadedBooks(){
+       document.getElementById('content').innerHTML=
+               `<h3 class="w-100 mt-5 d-flex justify-content-center">Список книг</h3>
+                   <div id="box_listReadedBooks" class="w-100 d-flex justify-content-center p-5">
+
+                   </div>`;
+       await fetch('listReadedBooks',{
            method: 'GET',
            headers: {'Content-Type': 'application/json'}
        })
@@ -122,8 +174,12 @@ class BookModule{
                 .then(response => response.json())
                 .then(response => {
                     document.getElementById('info').innerHTML=response.info;
+                    bookModule.printListBooks();
                 })
                 .catch(error=>console.log('error: '+error));
+    }
+    printBook(id){
+        console.log('Печатается книга с id='+id);
     }
 }
 const bookModule = new BookModule();

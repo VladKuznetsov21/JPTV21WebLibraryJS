@@ -1,10 +1,9 @@
-export{checkAuthUser};
 import{bookModule} from './BookModule.js';
 import{authorModule} from './AuthorModule.js';
 import{userModule} from './UserModule.js';
 import{loginModule} from './LoginModule.js';
 import{adminModule} from './AdminModule.js';
-
+let debug = false;
 
 const newBook = document.getElementById('newBook');
     newBook.addEventListener('click', e=>{
@@ -45,23 +44,18 @@ const changeRole = document.getElementById('changeRole');
         e.preventDefault();
         adminModule.printFormChangeRole();
     });
+checkAuthUser();
 function checkAuthUser(){
     let authUser = JSON.parse(sessionStorage.getItem('authUser'));
     if(authUser === null){
-        //show
-        logIn.hidden = false;
-        newUser.hidden = false;
-        listAuthors.hidden = false;
-        //hidden
         newBook.hidden = true;
         listUsers.hidden = true;
         newAuthor.hidden = true;
         logOut.hidden = true;
-        document.getElementById('returnBook').hidden = true;
-        document.getElementById('takeOnBook').hidden = true;
-        document.getElementById('liAdministrator').hidden = true;
         return;
     }
+    logOut.hidden = false;
+    logIn.hidden = true;
     document.getElementById('userLogin').innerHTML = authUser.login; 
     let USER = false;
     let EMPLOYEE = false;
@@ -78,20 +72,14 @@ function checkAuthUser(){
         }
     }
     if(USER){
-        logOut.hidden = false;
-        logIn.hidden = true;
-        document.getElementById('returnBook').hidden = false;
-        document.getElementById('takeOnBook').hidden = false;
         
     }
     if(EMPLOYEE){
-        newBook.hidden = false;
-        newAuthor.hidden = false;
+        
     }
     if(ADMINISTRATOR){
-        listUsers.hidden = false;
-        document.getElementById('liAdministrator').hidden = false;
+        
     }
     
 }
-checkAuthUser();
+export{checkAuthUser};

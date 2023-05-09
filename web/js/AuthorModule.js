@@ -1,3 +1,4 @@
+import {bookModule} from './BookModule.js';
 class AuthorModule{
     async printCreateAuthor(){
         // const add_book = document.getElementById('add_book');
@@ -37,6 +38,7 @@ class AuthorModule{
     }
     
     async createNewAuthor(createAuthorObject){
+       
         const requestOptions = {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -57,41 +59,58 @@ class AuthorModule{
            method: 'GET',
            headers: {'Content-Type': 'application/json'}
        })
-               .then(mapAuthors=>{
-                   console.log(mapAuthors);
-                   mapAuthors.json();
-                   console.log(JSON.stringify(mapAuthors));
-                   
-                })
-               .then(mapAuthors => {
+               .then(response=>response.json())
+               .then(response => {
+                    //console.log(JSON.stringify(response));
                     let content = document.getElementById('content');
-                    let cart = `
-                    <h3 class="w-100 mt-5 d-flex justify-content-center">Список книг</h3>
-                    <div id="box_listBooks" class="w-100 d-flex justify-content-center p-5">
+                    content.innerHTML = '';
+                    let html = `
+                    <h3 class="w-100 mt-5 d-flex justify-content-center">Список авторов</h3>
+                    <div id="box_listAuthors" class="w-100 d-flex justify-content-center p-5">
+
                     </div>`;
-                    content.insertAdjacentHTML("beforeend", cart);
-                    const table = document.createElement('table');
+                    content.insertAdjacentHTML("beforeend", html);
+                    let table = document.createElement('table');
+                    table.setAttribute('class','table w-50');
                     let headers = ["№", "Автор", "Книги автора"];
                     let thead = table.createTHead();
                     let row = thead.insertRow();
                     for(let i = 0; i < headers.length;i++){
                         let th = document.createElement("th");
+                        th.setAttribute('class','text-start');
                         let text = document.createTextNode(headers[i]);
                         th.appendChild(text);
                         row.appendChild(th);
                     }
                     let tbody = table.createTBody();
-                    mapAuthors.forEach((author,index)=>{
+                    for(let i = 0;i< response.length;i++){
+                        let entry = response[i];
                         let tr = tbody.insertRow();
                         let td1 = tr.insertCell();
-                        td1.innerHTML = index;
+                        td1.innerHTML = i+1;
                         let td2 = tr.insertCell();
-                        td2.innerHTML = author.firstname+' '+author.lastname;
+                        td2.innerHTML = entry.key.firstname+' '+entry.key.lastname;
                         let td3 = tr.insertCell();
                         td3.innerHTML = '';
-                    });
-                    let box_listBooks = document.getElementById('box_listBooks');
-                    box_listBooks.insertAdjacentHTML("beforeend", table);
+                        for(let j = 0;j< entry.value.length;j++){
+                            let book = entry.value[j];
+                            tr = tbody.insertRow();
+                            td1 = tr.insertCell();
+                            td1.innerHTML = '';
+                            let td2 = tr.insertCell();
+                            td2.innerHTML = '';
+                            let td3 = tr.insertCell();
+                            let a = document.createElement('a');
+                            a.setAttribute('class','btn btn-outline-dark w-100 border-0 bg-white text-primary text-start');
+                            a.innerHTML=book.bookName;
+                            td3.appendChild(a);
+                            a.addEventListener('click',e=>{
+                                bookModule.printBook(book.id);
+                            })
+                        }
+                    };
+                    let box_listAuhtors = document.getElementById('box_listAuthors');
+                    box_listAuthors.appendChild(table);
                         
                 })
                .catch(error => "error: "+error);

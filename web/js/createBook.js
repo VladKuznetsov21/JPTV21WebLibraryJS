@@ -42,6 +42,7 @@ async function createBookToDB(createBookData){
     const requestOptions = {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
+        credentials: 'include',
         body: JSON.stringify(createBookData)
     };
     

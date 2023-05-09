@@ -44,9 +44,11 @@ class template{
                             </select>
                         </div>
                       </div>
+
                       <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                           <button type="button" class="btn btn-primary me-md-2" id="addBook">Добавить</button>
                       </div>
+
                     </form>
                 </div>
             </div>

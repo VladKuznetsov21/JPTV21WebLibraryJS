@@ -35,6 +35,7 @@ class CoverModule{
     async createNewCover(){
         await fetch('createCover',{
             method:'POST',
+            credentials: 'include',
             body: new FormData(document.getElementById('formAddCover'))
         })
         .then(response=>response.json())

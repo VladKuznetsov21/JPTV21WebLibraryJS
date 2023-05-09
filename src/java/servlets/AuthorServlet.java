@@ -5,7 +5,7 @@
  */
 package servlets;
 
-import convertors.ConvertMapToJson;
+import convertors.ConvertToJson;
 import entity.Author;
 import entity.Book;
 import java.io.IOException;
@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import javax.ejb.EJB;
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
@@ -34,7 +35,7 @@ import session.BookFacade;
 @WebServlet(name = "AuthorServlet", urlPatterns = {
     "/createAuthor",
     "/listAuthors",
-    
+    "/listAllAuthors",
     
 })
 public class AuthorServlet extends HttpServlet {
@@ -96,15 +97,21 @@ public class AuthorServlet extends HttpServlet {
                         }
                     };
                 }
-                ConvertMapToJson cmtj = new ConvertMapToJson();
-                String jsonString = cmtj.getJsonObjectMap(mapAuthorBooks).toString();
+                ConvertToJson convertToJson = new ConvertToJson();
+                String jsonString = convertToJson.getJsonObjectMapAuthors(mapAuthorBooks).toString();
                 try (PrintWriter out = response.getWriter()) {
                     out.println(jsonString); //отправляем в out json-массив с книгами в виде строки
                 }
                 break;
+            case "/listAllAuthors":
+                listAuthors = authorFacade.findAll();
+                JsonArray listAllAuthors = new ConvertToJson().getJsonArrayAuthors(listAuthors);
+                try (PrintWriter out = response.getWriter()) {
+                    out.println(listAllAuthors.toString()); //отправляем в out json-массив с книгами в виде строки
+                }
+                 
+
         }
-        
-      
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
