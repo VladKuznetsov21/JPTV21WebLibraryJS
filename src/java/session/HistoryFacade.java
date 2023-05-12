@@ -39,5 +39,12 @@ public class HistoryFacade extends AbstractFacade<History> {
                 .getResultList();
         return readingBooks;
     }
-
+    public List<History> getReadingBooksHistory(User user) {
+        List<History> readingBooksHistory = new ArrayList<>();
+        readingBooksHistory = em.createQuery("SELECT h FROM History h WHERE h.user = :user AND h.returnBook = null")
+                .setParameter("user", user)
+                .getResultList();
+        return readingBooksHistory;
+    }
+    
 }

@@ -45,6 +45,16 @@ const changeRole = document.getElementById('changeRole');
         e.preventDefault();
         adminModule.printFormChangeRole();
     });
+const takeOnBook = document.getElementById('takeOnBook');
+    takeOnBook.addEventListener('click', e=>{
+        e.preventDefault();
+        userModule.printFormTakeOnBook();
+    });
+const returnBook = document.getElementById('returnBook');
+    returnBook.addEventListener('click', e=>{
+        e.preventDefault();
+        userModule.returnBookForm();
+    });
 function checkAuthUser(){
     let authUser = JSON.parse(sessionStorage.getItem('authUser'));
     if(authUser === null){

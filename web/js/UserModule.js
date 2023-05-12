@@ -137,6 +137,130 @@ class UserModule{
                 })
                .catch(error => "error: "+error);
     }
+    printFormTakeOnBook(){
+        document.getElementById('content').innerHTML = 
+        `<h1 class="w-100 d-flex justify-content-center">Выдача книги</h1>
+            <div class="w-100 d-flex justify-content-center">
+                <div class="card border-0" style="width: 25rem;">
+                  <div class="card-body">
+                    <h3 class="card-title w-100 my-3">Список книг</h3>
+                    <form action="" method="POST">
+                        <p class="card-text w-100">
+                            <select id="selectBooks" name="bookId" class="w-100">
+                                <option selected disabled>Выберите книгу</option>
+                                
+                            </select>
+                        </p>
+                        <p class="card-text w-100 d-flex justify-content-end">
+                            <input id="btnTakeOnBook" type="submit" value="Выдать книгу">
+                        </p>
+                    </form>
+
+                  </div>
+                </div>
+            </div>`;
+        fetch('listBooks', {
+           method: 'GET',
+           credentials: 'include',
+           headers: {'Content-Type': 'application/json'}
+        })
+                .then(response => response.json())
+                .then(response => {
+                    let selectBooks = document.getElementById('selectBooks');
+                    for(let i = 0; i < response.length; i++){
+                        let option = document.createElement('option');
+                        option.text = response[i].bookName+'. '+response[i].publishedYear;
+                        option.value = response[i].id;
+                        selectBooks.appendChild(option);
+                    }
+                })
+                .catch(error => console.log('Ошибка сервера: '+error));
+        const btnTakeOnBook = document.getElementById('btnTakeOnBook');
+        btnTakeOnBook.addEventListener('click',e=>{
+            e.preventDefault();
+            userModule.takeOnBook();
+        });
+    }
+    takeOnBook(){
+        const data = {
+            selectedBookId: document.getElementById('selectBooks').value
+        };
+        fetch('createHistory', {
+         method: 'POST',
+           credentials: 'include',
+           headers: {'Content-Type': 'application/json'},
+           body: JSON.stringify(data)
+        })
+                .then(response => response.json())
+                .then(response => {
+                    document.getElementById('info').innerHTML = response.info;
+                })
+                .catch(error => console.log('Ошибка сервера: '+error))
+    }
+    returnBookForm(){
+        document.getElementById('content').innerHTML=
+                `<h1 class="w-100 d-flex justify-content-center">Возврат книги</h1>
+                    <div class="w-100 d-flex justify-content-center">
+                        <div class="card border-0" style="width: 25rem;">
+                            <div class="card-body">
+                                <h3 class="card-title w-100 my-3">Список читаемых книг</h3>
+                                <form action="" method="POST">
+                                    <p class="card-text w-100">
+                                        <select id="historySelect" name="historyId">
+                                            <option value="#" selected readonly>Выберите книгу</option>
+                                        </select>
+                                    </p>
+                                    <p class="card-text w-100 d-flex justify-content-end">
+                                        <input id="btnReturnBook" type="submit" value="Вернуть книгу">
+                                    </p>
+
+                                </form>
+                            </div>
+                        </div>
+                    </div>`;
+        fetch('getReadingBooks',{
+           method: 'GET',
+           credentials: 'include',
+           headers: {'Content-Type': 'application/json'},
+        })
+                .then(response => response.json())
+                .then(response => {
+                    let historySelect = document.getElementById('historySelect');
+                    for(let i = 0; i < response.histories.length; i++){
+                        let histories = response.histories[i];
+                        let option = document.createElement('option');
+                        option.text = histories.book.bookName+', читает: '+histories.user.firstname+' '+histories.user.lastname;
+                        option.value = histories.id;
+                        historySelect.appendChild(option);
+                    }
+                    document.getElementById('info').innerHTML = response.info;
+                })
+                .catch(error => console.log('Ошибка сервера: '+error));
+        document.getElementById('btnReturnBook').addEventListener('click',e=>{
+            e.preventDefault();
+            userModule.returnBook();
+        });
+    }
+    returnBook(){
+        let data = {
+            historyId: document.getElementById('historySelect').value
+        };
+        if(data.historyId === '#'){
+            document.getElementById('info').innerHTML = 'Выберите книгу'
+            return;
+        }
+        fetch('returnBook',{
+          method: 'POST',
+          credentials: 'include',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(data)
+        }).then(response => response.json())
+                .then(response => {
+                    userModule.returnBookForm();
+                    document.getElementById('info').innerHTML = response.info;
+                })
+                .catch(error => console.log('Ошибка сервера: '+error));
+    }
 };
 const userModule = new UserModule();
 export {userModule};

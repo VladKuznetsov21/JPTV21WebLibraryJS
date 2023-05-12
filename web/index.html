@@ -24,8 +24,8 @@
                   <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                       <li><a id="listBooks" class="dropdown-item" href="#">Список книг</a></li>
                       <li><a id="newBook" class="dropdown-item" href="#">Добавить новую книгу</a></li>
-                      <li><a class="dropdown-item" href="returnBook">Взять книгу</a></li>
-                      <li><a class="dropdown-item" href="returnBook">Вернуть книгу в библиотеку</a></li>
+                      <li><a id ="takeOnBook" class="dropdown-item" href="#">Взять книгу</a></li>
+                      <li><a id="returnBook" class="dropdown-item" href="#">Вернуть книгу в библиотеку</a></li>
                   </ul>
                 </li>
             
@@ -49,28 +49,29 @@
                     </ul>
                 </li>
                 
-                <li class="nav-item dropdown">
+                <li id="liAdministrator" class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     Администратор
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <li><a class="dropdown-item" href="changeRole">Управление ролями</a></li>
+                    <li><a id="changeRole" class="dropdown-item" href="#">Управление ролями</a></li>
                     <li><a class="dropdown-item" href="review">Вывести рейтинг читаемости</a></li>
                   </ul>
                 </li>
             </ul>
             <ul class="navbar-nav me-right mb-2 mb-lg-0">
+                
+                <li class="nav-item">
+                  <p id="userLogin" class="dropdown-item"></p>
+                </li>
                 <li class="nav-item">
                   <a id="logIn" class="dropdown-item" href="#">Вход</a>
                 </li>
-            </ul>
-
-            <ul class="navbar-nav me-right mb-2 mb-lg-0">
                 <li class="nav-item">
                     <span class="dropdown-item text-info"></span>
                 </li>
                 <li class="nav-item">
-                     <a class="dropdown-item" href="logout">Выход</a>
+                     <a id="logout" class="dropdown-item" href="#">Выход</a>
                 </li>
             </ul>
           </div>

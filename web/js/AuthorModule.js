@@ -42,6 +42,7 @@ class AuthorModule{
         const requestOptions = {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
+            credentials: 'include',
             body: JSON.stringify(createAuthorObject)
         };
         await fetch('createAuthor',requestOptions)
@@ -57,7 +58,8 @@ class AuthorModule{
        
        await fetch('listAuthors',{
            method: 'GET',
-           headers: {'Content-Type': 'application/json'}
+           headers: {'Content-Type': 'application/json'},
+           credentials: 'include',
        })
                .then(response=>response.json())
                .then(response => {

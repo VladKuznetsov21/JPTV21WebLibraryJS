@@ -1,85 +1,84 @@
-import{bookModule} from './BookModule.js';
-import{authorModule} from './AuthorModule.js';
-import{userModule} from './UserModule.js';
-import{loginModule} from './LoginModule.js';
-import{adminModule} from './AdminModule.js';
-let debug = false;
-
-const newBook = document.getElementById('newBook');
-    newBook.addEventListener('click', e=>{
-        bookModule.printCreateBook();
-});
-const listBooks = document.getElementById('listBooks');
-    listBooks.addEventListener('click',e=>{
-        bookModule.printListBooks();
-});
-const newAuthor = document.getElementById('newAuthor');
-    newAuthor.addEventListener('click', e=>{
-        authorModule.printCreateAuthor();
-});
-const listAuthors = document.getElementById('listAuthors');
-    listAuthors.addEventListener('click', e=>{
-        authorModule.printListAuthors();
-    });
-const newUser = document.getElementById('newUser');
-    newUser.addEventListener('click', e=>{
-        userModule.printFormNewUser();
-    });
-const listUsers = document.getElementById('listUsers');
-    listUsers.addEventListener('click', e=>{
-        userModule.printListUsers();
-    });
-const logIn = document.getElementById('logIn');
-    logIn.addEventListener('click', e=>{
-        e.preventDefault();
-        loginModule.printFormLogin();
-    });
-const logOut = document.getElementById('logout');
-    logOut.addEventListener('click', e=>{
-        e.preventDefault();
-        loginModule.logout();
-    });
-const changeRole = document.getElementById('changeRole');
-    changeRole.addEventListener('click', e=>{
-        e.preventDefault();
-        adminModule.printFormChangeRole();
-    });
-checkAuthUser();
-function checkAuthUser(){
-    let authUser = JSON.parse(sessionStorage.getItem('authUser'));
-    if(authUser === null){
-        newBook.hidden = true;
-        listUsers.hidden = true;
-        newAuthor.hidden = true;
-        logOut.hidden = true;
-        return;
-    }
-    logOut.hidden = false;
-    logIn.hidden = true;
-    document.getElementById('userLogin').innerHTML = authUser.login; 
-    let USER = false;
-    let EMPLOYEE = false;
-    let ADMINISTRATOR = false;
-    for(let key in authUser.roles){
-        if(authUser.roles[key] === "USER"){
-            USER = true;
-        }
-        if(authUser.roles[key] === "EMPLOYEE"){
-            EMPLOYEE = true;
-        }
-        if(authUser.roles[key] === "ADMINISTRATOR"){
-            ADMINISTRATOR = true;
-        }
-    }
-    if(USER){
-        
-    }
-    if(EMPLOYEE){
-        
-    }
-    if(ADMINISTRATOR){
-        
+import {bookModule} from './BookModule.js';
+import {checkAuthUser} from './main.js';
+class LoginModule{
+    async printFormLogin(){
+        // const add_book = document.getElementById('add_book');
+         document.getElementById('content').innerHTML=
+        `<h2 class="w-100 d-flex justify-content-center mt-5">Вход в систему</h2>
+            <div class="w-100 d-flex justify-content-center mt-5">
+                <div class="card p-2" style="width: 35rem;">
+                  <div class="card-body">
+                    <form action="enter" method="POST">
+                      <div class="my-2 row">
+                        <label for="inputLogin" class="col-sm-4 col-form-label d-flex justify-content-end">Логин</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" name="login" id="inputLogin" value="">
+                        </div>
+                      </div>
+                      <div class="mb-2 row">
+                        <label for="inputPassword" class="col-sm-4 col-form-label d-flex justify-content-end">Password</label>
+                        <div class="col-sm-8">
+                            <input type="password" class="form-control" name="password" id="inputPassword">
+                        </div>
+                      </div>
+                      <div class="mt-3 p-2 row d-flex justify-content-end">
+                        <input type="button" class="btn btn-secondary col-sm-4" value="Войти" id="btnInputEnter">
+                      </div>
+                    </form>
+                      <div class="mb-2 row">
+                          <p class="text-info w-100 d-flex justify-content-end"><a id="registration" href="#">Зарегистрироваться</a></p>
+                      </div>
+                  </div>
+                </div>
+            </div>`;
+        const btnInputEnter = document.getElementById('btnInputEnter');
+        btnInputEnter.addEventListener('click',e=>{
+            e.preventDefault();
+            const loginObject = {
+                 'login': document.getElementById('inputLogin').value,
+                 'password': document.getElementById('inputPassword').value,
+            };
+            loginModule.login(loginObject);
+        });
     }
     
+    async login(loginObject){
+       
+        const requestOptions = {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'include',
+            body: JSON.stringify(loginObject)
+        };
+        await fetch('login',requestOptions)
+                .then(response => response.json())
+                .then(response => {
+                    document.getElementById('info').innerHTML=response.info;
+                    sessionStorage.setItem('authUser',JSON.stringify(response.authUser));
+                    bookModule.printListBooks();
+                    checkAuthUser();
+                })
+                .catch(error=>console.log('error: '+error));
+    }  
+    logout(){
+        let promise = fetch('logout',{
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'include',
+        });
+        promise.then(response => response.json());
+        promise.then(response => {
+                    document.getElementById('info').innerHTML=response.info;
+                    if(sessionStorage.getItem('authUser')!== null){
+                        sessionStorage.removeItem('authUser');
+                    };
+                    document.getElementById('info').innerHTML=response.info;
+                    bookModule.printListBooks();
+                    checkAuthUser();
+                })
+                .catch(error=>console.log('error: '+error));
+    }
+
 }
-export{checkAuthUser};
+const loginModule = new LoginModule();
+export {loginModule};

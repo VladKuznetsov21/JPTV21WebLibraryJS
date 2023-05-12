@@ -7,9 +7,11 @@ package servlets;
 
 import convertors.ConvertToJson;
 import entity.Book;
+import entity.History;
 import entity.User;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +26,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import session.HistoryFacade;
 import session.UserFacade;
 import tools.PassEncrypt;
@@ -35,6 +38,8 @@ import tools.PassEncrypt;
 @WebServlet(name = "UserServlet", urlPatterns = {
     "/userRegistration",
     "/listUsers",
+    "/getReadingBooks",
+    "/returnBook"
     
 })
 public class UserServlet extends HttpServlet {
@@ -56,6 +61,30 @@ public class UserServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         request.setCharacterEncoding("UTF-8");
         JsonObjectBuilder job = Json.createObjectBuilder();
+        
+        HttpSession session = request.getSession(false);
+        if(session == null){
+            job.add("info", "Вы не авторизованы!");
+            try (PrintWriter out = response.getWriter()) {
+                out.println(job.build().toString());
+            }
+            return;
+        }
+        User authUser = (User) session.getAttribute("authUser");
+        if(authUser == null){
+            job.add("info", "Вы не авторизованы!");
+            try (PrintWriter out = response.getWriter()) {
+                out.println(job.build().toString());
+            }
+            return;
+        }
+        if(!authUser.getRoles().contains(UserServlet.Role.EMPLOYEE.toString())){
+            job.add("info", "Вы не авторизованы!");
+            try (PrintWriter out = response.getWriter()) {
+                out.println(job.build().toString());
+            }
+            return;
+        }
         String path = request.getServletPath();
         switch (path) {
             case "/userRegistration":
@@ -96,8 +125,31 @@ public class UserServlet extends HttpServlet {
                     out.println(JsonArrayMapListUsers.toString());
                 }
               break;
+            case "/getReadingBooks":
+                List<History> listReadingBooksHistory = historyFacade.getReadingBooksHistory(authUser);
+                job = Json.createObjectBuilder();
+                job.add("histories", new ConvertToJson().getJsonArrayHistory(listReadingBooksHistory));
+                job.add("info", " ");
+                try (PrintWriter out = response.getWriter()) {
+                    out.println(job.build().toString());
+                }
+                break;
+            case "/returnBook":
+                jsonReader = Json.createReader(request.getReader());
+                jsonObject = jsonReader.readObject();
+                String historyId = jsonObject.getString("historyId");
+                History history = historyFacade.find(Long.parseLong(historyId));
+                history.setReturnBook(new GregorianCalendar().getTime());
+                historyFacade.edit(history);
+                job = Json.createObjectBuilder();
+                job.add("info", "Книга возвращена");
+                try (PrintWriter out = response.getWriter()) {
+                    out.println(job.build().toString());
+                }
+                break;
         }
     }
+
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

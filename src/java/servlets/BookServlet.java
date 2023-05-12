@@ -9,12 +9,15 @@ import convertors.ConvertToJson;
 import entity.Author;
 import entity.Book;
 import entity.Cover;
+import entity.History;
+import entity.User;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.GregorianCalendar;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.json.Json;
@@ -29,10 +32,13 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
+import servlets.UserServlet;
 import session.AuthorFacade;
 import session.BookFacade;
 import session.CoverFacade;
+import session.HistoryFacade;
 
 /**
  *
@@ -43,6 +49,7 @@ import session.CoverFacade;
     "/createCover",
     "/listCovers",
     "/listBooks",
+    "/createHistory",
     
     
 })
@@ -51,6 +58,7 @@ public class BookServlet extends HttpServlet {
     @EJB private AuthorFacade authorFacade;
     @EJB private CoverFacade coverFacade;
     @EJB private BookFacade bookFacade;
+    @EJB private HistoryFacade historyFacade;
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -64,6 +72,30 @@ public class BookServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         request.setCharacterEncoding("UTF-8");
+        JsonObjectBuilder job = Json.createObjectBuilder();
+        HttpSession session = request.getSession(false);
+        if(session == null){
+            job.add("info", "Вы не авторизованы!");
+            try (PrintWriter out = response.getWriter()) {
+                out.println(job.build().toString());
+            }
+            return;
+        }
+        User authUser = (User) session.getAttribute("authUser");
+        if(authUser == null){
+            job.add("info", "Вы не авторизованы!");
+            try (PrintWriter out = response.getWriter()) {
+                out.println(job.build().toString());
+            }
+            return;
+        }
+        if(!authUser.getRoles().contains(UserServlet.Role.USER.toString())){
+            job.add("info", "Вы не авторизованы!");
+            try (PrintWriter out = response.getWriter()) {
+                out.println(job.build().toString());
+            }
+            return;
+        }
         String path = request.getServletPath();
         switch (path) {
             case "/createBook":
@@ -80,7 +112,6 @@ public class BookServlet extends HttpServlet {
                 book.setQuantity(quantity);
                 //автора берем из базы данных по полученному из формы id
                 Author author = authorFacade.find(Long.parseLong(authorId));
-                JsonObjectBuilder job = Json.createObjectBuilder();
                 if(author == null){
                     job.add("info", "Error: Нет такого автора");
                     try (PrintWriter out = response.getWriter()) {
@@ -179,9 +210,23 @@ public class BookServlet extends HttpServlet {
                     out.println(jabBooks.build().toString()); //отправляем в out json-массив с книгами в виде строки
                 }
                 break;
+            case "/createHistory":
+                jsonReader = Json.createReader(request.getReader());
+                JsonObject jsonObject = jsonReader.readObject();
+                String bookId = jsonObject.getString("selectedBookId");
+                book = bookFacade.find(Long.parseLong(bookId));
+                History history = new History();
+                history.setBook(book);
+                history.setUser(authUser);
+                history.setTakeOnBook(new GregorianCalendar().getTime());
+                historyFacade.create(history);
+                job = Json.createObjectBuilder();
+                job.add("info", "Книга выдана");
+                 try (PrintWriter out = response.getWriter()) {
+                    out.println(job.build().toString()); //отправляем в out json-массив с книгами в виде строки
+                }
+                break;
         }
-        
-      
     }
     private String getFileName(Part part) {
         for (String content : part.getHeader("content-disposition").split(";")){
