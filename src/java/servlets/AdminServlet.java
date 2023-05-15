@@ -6,10 +6,12 @@
 package servlets;
 
 import convertors.ConvertToJson;
+import entity.Book;
 import entity.User;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 import javax.ejb.EJB;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -22,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import session.BookFacade;
+import session.HistoryFacade;
 import session.UserFacade;
 
 /**
@@ -32,12 +35,15 @@ import session.UserFacade;
     "/changeRoleData",
     "/addRole",
     "/removeRole",
+    "/calcStatistic"
+    
    
     
 })
 public class AdminServlet extends HttpServlet {
     @EJB private UserFacade userFacade;
     @EJB private BookFacade bookFacade;
+    @EJB private HistoryFacade historyFacade;
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -158,7 +164,30 @@ public class AdminServlet extends HttpServlet {
                     }
                 }
                 break;
-           
+            case "/calcStatistic":
+                jsonReader = Json.createReader(request.getReader());
+                jsonObject = jsonReader.readObject();
+                String year = jsonObject.getString("year");
+                String month = jsonObject.getString("month");
+                String day = jsonObject.getString("day");
+                String period = "";
+                if(day.isEmpty() && month.isEmpty() && !year.isEmpty()){
+                    period = "Год";
+                }else if(day.isEmpty() && !month.isEmpty() && !year.isEmpty()){
+                    period = "Месяц";
+                }else if(!day.isEmpty() && !month.isEmpty() && !year.isEmpty()){
+                    period = "День";
+                }
+                Map<Book,Integer>mapBook = historyFacade.getTakedBooksInPeriod(year, month, day);
+                
+                job=Json.createObjectBuilder();
+                job.add("status", true);
+                job.add("period", period);
+                job.add("mapStatistic", new ConvertToJson().getJAMapStatistic(mapBook));
+                 try (PrintWriter out = response.getWriter()) {
+                    out.println(job.build().toString());
+                }
+                break;
 
         }
     }

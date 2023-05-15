@@ -162,4 +162,18 @@ public class ConvertToJson {
         job.add("user", getJsonObjectUser(history.getUser()));
        return job.build();
     }
+    public JsonArray getJAMapStatistic(Map<Book,Integer> mapBookRange){
+        JsonArrayBuilder jab = Json.createArrayBuilder();
+        JsonObjectBuilder jsonEntryObjectBuilder = Json.createObjectBuilder();
+        for(Entry entry: mapBookRange.entrySet()){
+            Book book = (Book) entry.getKey();
+            int n = (int) entry.getValue();
+            jsonEntryObjectBuilder.add("key", getJsonObjectBook(book));
+            jsonEntryObjectBuilder.add("value", n);
+        }
+        jab.add(jsonEntryObjectBuilder);
+        return jab.build();
+    }
+ 
+    
 }

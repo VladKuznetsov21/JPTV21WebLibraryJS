@@ -116,11 +116,121 @@ class AdminModule{
                        document.getElementById('info').innerHTML=response.info;
                     }
                 })
-                .catch(error => document.getElementById('info').innerHTML='Ошибка формирования JSON: '+error)
+                .catch(error => document.getElementById('info').innerHTML='Ошибка формирования JSON: '+error);
        
     }
+    printStatisticForm(){
+        document.getElementById('content').innerHTML = 
+       `<h2  class="w-100 d-flex justify-content-center mt-5">Обзор читаемости книг</h2>
+        <div class="w-100 d-flex justify-content-center mt-4">
+            <div class="card border-0" style="width: 24rem;">
+                <form action="" method="POST">
+                    <h5>Год</h5> 
+                    <select class="form-select" id="selectYear" name="year">
+                        <option value='' selected disabled>Выберите год</option>
+                        
+                    </select>
+                    <h5>Месяц</h5> 
+
+                    <select class="form-select" id="selectMonth" name="month">
+                        <option value='' selected disabled>Выберите месяц</option>
+                        
+                    </select>
+                    <h5>День:</h5> 
+
+                    <select class="form-select" id="selectDay" name="day">
+                        <option value='' selected disabled>Выберите день месяца</option>
+                        
+                    </select>
+                    <p class="w-100 mt-5 d-flex justify-content-evenly">
+                        <input id="btnCalcStat" class="btn btn-secondary w-25" type="submit" name="action" value="Вычислить">
+                    </p>
+                </form>
+            </div>
+        </div>`;
+        let selectYear = document.getElementById('selectYear');
+        const currentYear = new Date().getFullYear();
+        for(let i = 0; i < 3; i++ ){
+            let option = document.createElement('option');
+            option.text = currentYear - i;
+            option.value = currentYear - i;
+            selectYear.appendChild(option);
+        };
+        let selectMonth = document.getElementById('selectMonth');
+        for(let i = 0; i < 12; i++){
+            let option = document.createElement('option');
+            option.text = i+1;
+            option.value = i+1;
+            selectMonth.appendChild(option);
+        };
+        let selectDay = document.getElementById('selectDay');
+        for(let i = 0; i < 30; i++){
+            let option = document.createElement('option');
+            option.text = i+1;
+            option.value = i+1;
+            selectDay.appendChild(option);
+        };
+        let btnCalcStat = document.getElementById('btnCalcStat');
+        btnCalcStat.addEventListener('click',e=>{
+            e.preventDefault();
+            adminModule.calcStatistic();
+        });
+    }
+    calcStatistic(){
+        let data = {
+            year: document.getElementById('selectYear').value,
+            month: document.getElementById('selectMonth').value,
+            day: document.getElementById('selectDay').value,
+        }
+        fetch('calcStatistic',{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify(data)
+
+        })
+                .then(response => response.json())
+                .then(response =>{
+                    document.getElementById('content').innerHTML = 
+                    `<h5 class="w-100 d-flex justify-content-center mt-5">Рейтинг за ${response.period}</h5>
+                    <div class="w-100 d-flex justify-content-center mt-4">
+                        <div class="card border-0" style="width: 24rem;">
+                            <table id="table1" class="table">
+                              <thead>
+                                <tr>
+                                  <th scope="col">№</th>
+                                  <th scope="col">Название книги</th>
+                                  <th scope="col">Количество<br>прочитанных</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>`;
+                    let tbody = document.querySelector('#table1 tbody');
+
+                    for(let i = 0; i<response.mapStatistic.length;i++){
+                        let row = tbody.insertRow();
+                        let cell1 = row.insertCell();
+                        let cell2 = row.insertCell();
+                        let cell3 = row.insertCell();
+                        cell1.innerHTML = i+1;
+                        cell2.innerHTML = response.mapStatistic[i].key.bookName + '. ' + response.mapStatistic[i].key.publishedYear;
+                        cell3.innerHTML = response.mapStatistic[i].value;
+                    }
+
+                })
+               .catch(error => document.getElementById('info').innerHTML='Ошибка формирования JSON: '+error)
+
+
+
+
+    }
+    
 }
 const adminModule = new AdminModule();
 export {adminModule};
-
-
